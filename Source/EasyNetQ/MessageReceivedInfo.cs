@@ -28,7 +28,7 @@
             DeliverTag = deliverTag;
             Redelivered = redelivered;
             Exchange = exchange;
-            RoutingKey = routingKey;
+            RoutingKey = string.IsNullOrEmpty(routingKey) ? queue : routingKey;
             Queue = queue;
         }
     }

@@ -92,12 +92,12 @@ namespace EasyNetQ.Consumer
             }
         }
 
-        private void DeclareDefaultErrorQueue(IModel model)
+        private void DeclareDefaultErrorQueue(IModel model, MessageReceivedInfo info)
         {
             if (!errorQueueDeclared)
             {
                 model.QueueDeclare(
-                    queue: conventions.ErrorQueueNamingConvention(),
+                    queue: conventions.ErrorQueueNamingConvention(info),
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
@@ -114,14 +114,14 @@ namespace EasyNetQ.Consumer
             {
                 var exchangeName = conventions.ErrorExchangeNamingConvention(context.Info);
                 model.ExchangeDeclare(exchangeName, ExchangeType.Direct, durable: true);
-                model.QueueBind(conventions.ErrorQueueNamingConvention(), exchangeName, originalRoutingKey);
+                model.QueueBind(conventions.ErrorQueueNamingConvention(context.Info), exchangeName, originalRoutingKey);
                 return exchangeName;
             });
         }
 
         private string DeclareErrorExchangeQueueStructure(IModel model, ConsumerExecutionContext context)
         {
-            DeclareDefaultErrorQueue(model);
+            DeclareDefaultErrorQueue(model, context.Info);
             return DeclareErrorExchangeAndBindToDefaultErrorQueue(model, context);
         }
 
