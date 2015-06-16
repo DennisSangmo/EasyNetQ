@@ -68,6 +68,7 @@ namespace EasyNetQ.Hosepipe
             arguments.WithKey("u", a => parameters.Username = a.Value);
             arguments.WithKey("p", a => parameters.Password = a.Value);
             arguments.WithKey("o", a => parameters.MessageFilePath = a.Value);
+            arguments.WithKey("q", a => parameters.QueueName = a.Value);
             arguments.WithTypedKeyOptional<int>("n", a => parameters.NumberOfMessagesToRetrieve = int.Parse(a.Value))
                 .FailWith(messsage("Invalid number of messages to retrieve"));
             arguments.WithTypedKeyOptional<bool>("x", a => parameters.Purge = bool.Parse(a.Value))
@@ -86,6 +87,8 @@ namespace EasyNetQ.Hosepipe
                 arguments.At(0, "err", () => ErrorDump(parameters));
 
                 arguments.At(0, "retry", () => Retry(parameters));
+
+                arguments.At(0, "requeue", () => Requeue(parameters));
 
                 arguments.At(0, "?", PrintUsage);
 
@@ -128,7 +131,6 @@ namespace EasyNetQ.Hosepipe
 
         private void ErrorDump(QueueParameters parameters)
         {
-            parameters.QueueName = conventions.ErrorQueueNamingConvention();
             Dump(parameters);
         }
 
@@ -137,7 +139,7 @@ namespace EasyNetQ.Hosepipe
             var count = 0;
             errorRetry.RetryErrors(
                 WithEach(
-                    messageReader.ReadMessages(parameters, conventions.ErrorQueueNamingConvention()), 
+                    messageReader.ReadMessages(parameters, parameters.QueueName), 
                     () => count++), 
                 parameters);
 
@@ -152,6 +154,24 @@ namespace EasyNetQ.Hosepipe
                 action();
                 yield return message;
             }
+        }
+
+        private void Requeue(QueueParameters parameters)
+        {
+            parameters.Purge = true;
+            parameters.MessageFilePath = Path.Combine(parameters.MessageFilePath, "Dump_"+DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+            if (!Directory.Exists(parameters.MessageFilePath))
+            {
+                Directory.CreateDirectory(parameters.MessageFilePath);
+            }
+            Dump(parameters);
+
+            parameters.Purge = false;
+            parameters.QueueName = null;
+            Retry(parameters);
+
+            Directory.Delete(parameters.MessageFilePath, true);
         }
 
         public static void PrintUsage()
