@@ -41,20 +41,20 @@ namespace EasyNetQ.Hosepipe.Tests
             }
         }
 
-        [Test, Explicit(@"Needs message files in 'C:\temp\MessageOutput'")]
-        public void Should_be_able_to_read_only_error_messages()
-        {
-            var parameters = new QueueParameters
-            {
-                MessageFilePath = @"C:\temp\MessageOutput"
-            };
+        //[Test, Explicit(@"Needs message files in 'C:\temp\MessageOutput'")]
+        //public void Should_be_able_to_read_only_error_messages()
+        //{
+        //    var parameters = new QueueParameters
+        //    {
+        //        MessageFilePath = @"C:\temp\MessageOutput"
+        //    };
 
-            var messages = messageReader.ReadMessages(parameters, conventions.ErrorQueueNamingConvention());
-            foreach (var message in messages)
-            {
-                Console.WriteLine(message.Body);
-            }
-        }
+        //    var messages = messageReader.ReadMessages(parameters, conventions.ErrorQueueNamingConvention());
+        //    foreach (var message in messages)
+        //    {
+        //        Console.WriteLine(message.Body);
+        //    }
+        //}
     }
 }
 

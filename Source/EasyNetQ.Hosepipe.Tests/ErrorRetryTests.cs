@@ -19,22 +19,22 @@ namespace EasyNetQ.Hosepipe.Tests
             errorRetry = new ErrorRetry(new JsonSerializer(typeNameSerializer));
         }
 
-        [Test, Explicit("Requires a RabbitMQ instance and messages on disk in the given directory")]
-        public void Should_republish_all_error_messages_in_the_given_directory()
-        {
-            var parameters = new QueueParameters
-            {
-                HostName = "localhost",
-                Username = "guest",
-                Password = "guest",
-                MessageFilePath = @"C:\temp\MessageOutput"
-            };
+        //[Test, Explicit("Requires a RabbitMQ instance and messages on disk in the given directory")]
+        //public void Should_republish_all_error_messages_in_the_given_directory()
+        //{
+        //    var parameters = new QueueParameters
+        //    {
+        //        HostName = "localhost",
+        //        Username = "guest",
+        //        Password = "guest",
+        //        MessageFilePath = @"C:\temp\MessageOutput"
+        //    };
 
-            var rawErrorMessages = new MessageReader()
-                .ReadMessages(parameters, conventions.ErrorQueueNamingConvention());
+        //    var rawErrorMessages = new MessageReader()
+        //        .ReadMessages(parameters, conventions.ErrorQueueNamingConvention());
 
-            errorRetry.RetryErrors(rawErrorMessages, parameters);
-        }
+        //    errorRetry.RetryErrors(rawErrorMessages, parameters);
+        //}
 
         [Test, Explicit("Requires a RabbitMQ instance")]
         public void Should_republish_to_default_exchange()

@@ -52,53 +52,53 @@ namespace EasyNetQ.Tests
         /// <summary>
         /// NOTE: Make sure the error queue is empty before running this test.
         /// </summary>
-        [Test, Explicit("Requires a RabbitMQ instance on localhost")]
-        public void Should_handle_an_exception_by_writing_to_the_error_queue()
-        {
-            const string originalMessage = "{ Text:\"Hello World\"}";
-            var originalMessageBody = Encoding.UTF8.GetBytes(originalMessage);
+        //[Test, Explicit("Requires a RabbitMQ instance on localhost")]
+        //public void Should_handle_an_exception_by_writing_to_the_error_queue()
+        //{
+        //    const string originalMessage = "{ Text:\"Hello World\"}";
+        //    var originalMessageBody = Encoding.UTF8.GetBytes(originalMessage);
 
-            var exception = new Exception("I just threw!");
+        //    var exception = new Exception("I just threw!");
 
-            var context = new ConsumerExecutionContext(
-                (bytes, properties, arg3) => null,
-                new MessageReceivedInfo("consumertag", 0, false, "orginalExchange", "originalRoutingKey", "queue"),
-                new MessageProperties
-                {
-                    CorrelationId = "123",
-                    AppId = "456"
-                },
-                originalMessageBody,
-                MockRepository.GenerateStub<IBasicConsumer>()
-                );
+        //    var context = new ConsumerExecutionContext(
+        //        (bytes, properties, arg3) => null,
+        //        new MessageReceivedInfo("consumertag", 0, false, "orginalExchange", "originalRoutingKey", "queue"),
+        //        new MessageProperties
+        //        {
+        //            CorrelationId = "123",
+        //            AppId = "456"
+        //        },
+        //        originalMessageBody,
+        //        MockRepository.GenerateStub<IBasicConsumer>()
+        //        );
 
-            consumerErrorStrategy.HandleConsumerError(context, exception);
+        //    consumerErrorStrategy.HandleConsumerError(context, exception);
 
-            Thread.Sleep(100);
+        //    Thread.Sleep(100);
 
-            // Now get the error message off the error queue and assert its properties
-            using(var connection = connectionFactory.CreateConnection())
-            using(var model = connection.CreateModel())
-            {
-                var getArgs = model.BasicGet(conventions.ErrorQueueNamingConvention(), true);
-                if (getArgs == null)
-                {
-                    Assert.Fail("Nothing on the error queue");
-                }
-                else
-                {
-                    var message = serializer.BytesToMessage<Error>(getArgs.Body);
+        //    // Now get the error message off the error queue and assert its properties
+        //    using(var connection = connectionFactory.CreateConnection())
+        //    using(var model = connection.CreateModel())
+        //    {
+        //        var getArgs = model.BasicGet(conventions.ErrorQueueNamingConvention(), true);
+        //        if (getArgs == null)
+        //        {
+        //            Assert.Fail("Nothing on the error queue");
+        //        }
+        //        else
+        //        {
+        //            var message = serializer.BytesToMessage<Error>(getArgs.Body);
 
-                    message.RoutingKey.ShouldEqual(context.Info.RoutingKey);
-                    message.Exchange.ShouldEqual(context.Info.Exchange);
-                    message.Message.ShouldEqual(originalMessage);
-                    message.Exception.ShouldEqual("System.Exception: I just threw!");
-                    message.DateTime.Date.ShouldEqual(DateTime.UtcNow.Date);
-                    message.BasicProperties.CorrelationId.ShouldEqual(context.Properties.CorrelationId);
-                    message.BasicProperties.AppId.ShouldEqual(context.Properties.AppId);
-                }
-            }
-        }
+        //            message.RoutingKey.ShouldEqual(context.Info.RoutingKey);
+        //            message.Exchange.ShouldEqual(context.Info.Exchange);
+        //            message.Message.ShouldEqual(originalMessage);
+        //            message.Exception.ShouldEqual("System.Exception: I just threw!");
+        //            message.DateTime.Date.ShouldEqual(DateTime.UtcNow.Date);
+        //            message.BasicProperties.CorrelationId.ShouldEqual(context.Properties.CorrelationId);
+        //            message.BasicProperties.AppId.ShouldEqual(context.Properties.AppId);
+        //        }
+        //    }
+        //}
     }
 }
 

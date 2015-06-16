@@ -45,12 +45,12 @@ namespace EasyNetQ.Tests
             result.ShouldEqual(typeNameSerializer.Serialize(typeof(TestMessage)) + "_" + subscriptionId);
 		}
 
-        [Test]
-        public void The_default_error_queue_name_should_be()
-        {
-            var result = conventions.ErrorQueueNamingConvention();
-            result.ShouldEqual("EasyNetQ_Default_Error_Queue");
-        }
+        //[Test]
+        //public void The_default_error_queue_name_should_be()
+        //{
+        //    var result = conventions.ErrorQueueNamingConvention();
+        //    result.ShouldEqual("EasyNetQ_Default_Error_Queue");
+        //}
 
         [Test]
         public void The_default_error_exchange_name_should_be()
@@ -233,84 +233,84 @@ namespace EasyNetQ.Tests
     }
 
 
-    [TestFixture]
-    public class When_using_default_consumer_error_strategy
-    {
-        private DefaultConsumerErrorStrategy errorStrategy;
-        private MockBuilder mockBuilder;
-        private AckStrategy errorAckStrategy;
-        private AckStrategy cancelAckStrategy;
+    //[TestFixture]
+    //public class When_using_default_consumer_error_strategy
+    //{
+    //    private DefaultConsumerErrorStrategy errorStrategy;
+    //    private MockBuilder mockBuilder;
+    //    private AckStrategy errorAckStrategy;
+    //    private AckStrategy cancelAckStrategy;
 
-        [SetUp]
-        public void SetUp()
-        {
-            var customConventions = new Conventions(new TypeNameSerializer())
-            {
-                ErrorQueueNamingConvention = () => "CustomEasyNetQErrorQueueName",
-                ErrorExchangeNamingConvention = info => "CustomErrorExchangePrefixName." + info.RoutingKey
-            };
+    //    [SetUp]
+    //    public void SetUp()
+    //    {
+    //        var customConventions = new Conventions(new TypeNameSerializer())
+    //        {
+    //            ErrorQueueNamingConvention = () => "CustomEasyNetQErrorQueueName",
+    //            ErrorExchangeNamingConvention = info => "CustomErrorExchangePrefixName." + info.RoutingKey
+    //        };
 
-            mockBuilder = new MockBuilder();
+    //        mockBuilder = new MockBuilder();
 
-            errorStrategy = new DefaultConsumerErrorStrategy(
-                mockBuilder.ConnectionFactory, 
-                new JsonSerializer(new TypeNameSerializer()), 
-                MockRepository.GenerateStub<IEasyNetQLogger>(), 
-                customConventions,
-                new TypeNameSerializer());
+    //        errorStrategy = new DefaultConsumerErrorStrategy(
+    //            mockBuilder.ConnectionFactory, 
+    //            new JsonSerializer(new TypeNameSerializer()), 
+    //            MockRepository.GenerateStub<IEasyNetQLogger>(), 
+    //            customConventions,
+    //            new TypeNameSerializer());
 
-            const string originalMessage = "";
-            var originalMessageBody = Encoding.UTF8.GetBytes(originalMessage);
+    //        const string originalMessage = "";
+    //        var originalMessageBody = Encoding.UTF8.GetBytes(originalMessage);
 
-            var context = new ConsumerExecutionContext(
-                (bytes, properties, arg3) => null,
-                new MessageReceivedInfo("consumerTag", 0, false, "orginalExchange", "originalRoutingKey", "queue"),
-                new MessageProperties
-                    {
-                        CorrelationId = string.Empty,
-                        AppId = string.Empty
-                    },
-                originalMessageBody,
-                MockRepository.GenerateStub<IBasicConsumer>()
-                );
+    //        var context = new ConsumerExecutionContext(
+    //            (bytes, properties, arg3) => null,
+    //            new MessageReceivedInfo("consumerTag", 0, false, "orginalExchange", "originalRoutingKey", "queue"),
+    //            new MessageProperties
+    //                {
+    //                    CorrelationId = string.Empty,
+    //                    AppId = string.Empty
+    //                },
+    //            originalMessageBody,
+    //            MockRepository.GenerateStub<IBasicConsumer>()
+    //            );
 
-            try
-            {
-                errorAckStrategy = errorStrategy.HandleConsumerError(context, new Exception());
-                cancelAckStrategy = errorStrategy.HandleConsumerCancelled(context);
-            }
-            catch (Exception)
-            {
-                // swallow
-            }
-        }
+    //        try
+    //        {
+    //            errorAckStrategy = errorStrategy.HandleConsumerError(context, new Exception());
+    //            cancelAckStrategy = errorStrategy.HandleConsumerCancelled(context);
+    //        }
+    //        catch (Exception)
+    //        {
+    //            // swallow
+    //        }
+    //    }
 
-        [Test]
-        public void Should_use_exchange_name_from_custom_names_provider()
-        {
-            mockBuilder.Channels[0].AssertWasCalled(x =>
-                x.ExchangeDeclare("CustomErrorExchangePrefixName.originalRoutingKey", "direct", true));
-        }
+    //    [Test]
+    //    public void Should_use_exchange_name_from_custom_names_provider()
+    //    {
+    //        mockBuilder.Channels[0].AssertWasCalled(x =>
+    //            x.ExchangeDeclare("CustomErrorExchangePrefixName.originalRoutingKey", "direct", true));
+    //    }
 
-        [Test]
-        public void Should_use_queue_name_from_custom_names_provider()
-        {
-            mockBuilder.Channels[0].AssertWasCalled(x => 
-                x.QueueDeclare("CustomEasyNetQErrorQueueName", true, false, false, null));
-        }
+    //    [Test]
+    //    public void Should_use_queue_name_from_custom_names_provider()
+    //    {
+    //        mockBuilder.Channels[0].AssertWasCalled(x => 
+    //            x.QueueDeclare("CustomEasyNetQErrorQueueName", true, false, false, null));
+    //    }
 
-        [Test]
-        public void Should_Ack_failed_message()
-        {
-            Assert.AreSame(AckStrategies.Ack, errorAckStrategy);
-        }
+    //    [Test]
+    //    public void Should_Ack_failed_message()
+    //    {
+    //        Assert.AreSame(AckStrategies.Ack, errorAckStrategy);
+    //    }
         
-        [Test]
-        public void Should_Ack_canceled_message()
-        {
-            Assert.AreSame(AckStrategies.Ack, cancelAckStrategy);
-        }
-    }
+    //    [Test]
+    //    public void Should_Ack_canceled_message()
+    //    {
+    //        Assert.AreSame(AckStrategies.Ack, cancelAckStrategy);
+    //    }
+    //}
 }
 
 // ReSharper restore InconsistentNaming
